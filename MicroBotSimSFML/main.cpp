@@ -24,7 +24,7 @@ int main()
     float backgroundOffsetX = -1;
     float bOffsetIncrement = -0.5;
 
-    MicroBot mBot = MicroBot(PATH_TO_MAGNIT_TEXTURE, PATH_TO_MICROBOT_TEXTURE,500.f, 500.f, 100.f, 200.f, 0.3);
+    MicroBot mBot = MicroBot(PATH_TO_MAGNIT_TEXTURE, PATH_TO_MICROBOT_TEXTURE,500.f, 500.f, 100.f, 200.f, 0.3, 0.005);
     Walls walls = Walls(PATH_TO_WALLS_TEXTURE, SCREEN_WEIGHT, SCREEN_HEIGHT);
     walls.testUpdate(SCREEN_WEIGHT, SCREEN_HEIGHT);
 

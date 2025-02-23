@@ -1,6 +1,6 @@
 #include "MicroBot.h"
 
-MicroBot::MicroBot(const char* pathToMagnitTexture, const char* pathToBotTexture, float initMagnitX, float initMagnitY, float botOffsetX, float botOffsetY, float rigidCoeff)
+MicroBot::MicroBot(const char* pathToMagnitTexture, const char* pathToBotTexture, float initMagnitX, float initMagnitY, float botOffsetX, float botOffsetY, float rigidCoeff, float bMass)
 {
 	magnitTexture.loadFromFile(pathToMagnitTexture);
 	botTexture.loadFromFile(pathToBotTexture);
@@ -30,6 +30,8 @@ MicroBot::MicroBot(const char* pathToMagnitTexture, const char* pathToBotTexture
 	bot->setPosition(botPos);
 
 	rC = rigidCoeff;
+	botScore = 0;
+	botMass = bMass;
 }
 
 void MicroBot::update(float newMagnitX, float newMagnitY, int dt)
