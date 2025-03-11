@@ -1,6 +1,6 @@
 #include "MicroBot.h"
 
-MicroBot::MicroBot(const char* pathToMagnitTexture, const char* pathToBotTexture, float initMagnitX, float initMagnitY, float botOffsetX, float botOffsetY, float rigidCoeff, float bMass)
+MicroBot::MicroBot(const char* pathToMagnitTexture, const char* pathToBotTexture, float initMagnitX, float initMagnitY, float botOffsetX, float botOffsetY, float rigidCoeff, float velocityCoef, float bMass)
 {
 	magnitTexture.loadFromFile(pathToMagnitTexture);
 	botTexture.loadFromFile(pathToBotTexture);
@@ -30,6 +30,7 @@ MicroBot::MicroBot(const char* pathToMagnitTexture, const char* pathToBotTexture
 	bot->setPosition(botPos);
 
 	rC = rigidCoeff;
+	vC = velocityCoef;
 	botScore = 0;
 	botMass = bMass;
 }
@@ -39,18 +40,46 @@ void MicroBot::update(float newMagnitX, float newMagnitY, int dt)
 	prevMagnitPos.x = magnitPos.x;
 	prevMagnitPos.y = magnitPos.y;
 
-	prevBotPos.x = botPos.x;
-	prevBotPos.y = botPos.y;
-
 	magnitPos.x = newMagnitX - (mTsize.x / 2);
 	magnitPos.y = newMagnitY - (mTsize.y / 2);
 
 	magnit->setPosition(magnitPos);
 	// bot phisics here
-	// tmp code
-	botPos.x = magnitPos.x - bOffsetX - (bTsize.x / 2);
-	botPos.y = magnitPos.y + bOffsetY + (bTsize.y / 2);
+	// elastic force calk
+	float botTargetX = magnitPos.x - bOffsetX - (bTsize.x / 2);
+	float botTargetY = magnitPos.y + bOffsetY + (bTsize.y / 2);
 
+	float botDeltaLX = botTargetX - prevBotPos.x;
+	float botDeltaLY = botTargetY - prevBotPos.y;
+
+	float botElasticForceX = rC * botDeltaLX;
+	float botElasticForceY = rC * botDeltaLY;
+	// velocity resistance force
+	float botElasticForceAX = botElasticForceX / botMass;
+	float botElasticForceAY = botElasticForceY / botMass;
+
+	float botElasticForceVX = botElasticForceAX * dt;
+	float botElasticForceVY = botElasticForceAY * dt;
+
+	float botVelocityResistanceForceX = vC * botElasticForceVX;
+	float botVelocityResistanceForceY = vC * botElasticForceVY;
+	// offsets calk
+	float botForcesAX = (botElasticForceX - botVelocityResistanceForceX) / botMass;
+	float botForcesAY = (botElasticForceY - botVelocityResistanceForceY) / botMass;
+
+	float offsetX = (botForcesAX * dt * dt) / 2;
+	float offsetY = (botForcesAY * dt * dt) / 2;
+
+	botPos.x = prevBotPos.x + offsetX;
+	botPos.y = prevBotPos.y + offsetY;
 	bot->setPosition(botPos);
+	
+	std::cout << botPos.x << std::endl;
+	std::cout << botPos.y << std::endl;
+	std::cout << '|' << std::endl;
+
+	prevBotPos.x = botPos.x;
+	prevBotPos.y = botPos.y;
+	
 }
 

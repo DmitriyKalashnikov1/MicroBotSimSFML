@@ -10,3 +10,5 @@ const char* PATH_TO_MICROBOT_TEXTURE = "resources\\botTexture.png";
 const char* PATH_TO_BACKGROUND_TEXTURE = "resources\\backgroundTexture.jpg";
 const char* PATH_TO_WALLS_TEXTURE = "resources\\wallsTexture.jpg";
 const char* PATH_TO_STAR_TEXTURE = "resources\\starTexture.jpg";
+
+const float BOT_MASS = 0.001;
