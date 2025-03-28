@@ -8,84 +8,92 @@ Walls::Walls(const char* pathToWallsTexture, int screenW, int screenH)
 	scrW = screenW;
 	scrH = screenH;
 
-	upWall.setPointCount(numOfPoints+1);
-	downWall.setPointCount(numOfPoints+1);
+
+	upWall.setPointCount(numOfPoints);
+	downWall.setPointCount(numOfPoints);
 
 	upWall.setPoint(0, {0.0f, 0.0f});
 	upWall.setPoint(1, Vector2f(screenW, 0.f));
 
-	downWall.setPoint(numOfPoints, Vector2f(0, screenH));
-	downWall.setPoint(numOfPoints - 1, Vector2f(screenW, screenH));
+	downWall.setPoint(numOfPoints - 1, Vector2f(0, screenH));
+	downWall.setPoint(numOfPoints - 2, Vector2f(screenW, screenH));
 
 	upWall.setTexture(&wallsTexture);
 	downWall.setTexture(&wallsTexture);
 
 	std::random_device rd{};
 	std::mt19937 gen{ rd() };
-	std::uniform_real_distribution<> distr{ 0.f, 6.28 };
+	std::uniform_real_distribution<> angleDistr{ 0.f, 6.28 };
+	std::uniform_int_distribution<> ampDistr{100, 300};
+	
+	float OFFSETup = 0.2 * scrH;
+	float OFFSETdown = 0.8 * scrH;
 
+	float angle = angleDistr(gen);
 
-	 float upWallXDec = 0;
+	float upWallXDec = 0;
 
-	float OFFSET = 0.2 * scrH;
+	for (int f = 0; f < mapLenght; f++) {
+		int AMPup = ampDistr(gen);
+		int AMPdown = ampDistr(gen);
+		upMap[f] = AMPup * sin(0.01*f) + OFFSETup;
+		downMap[f] = AMPdown * cos(0.01*f) + OFFSETdown;
 
-	float AMP = 100.f; //32767;
-	float angle = distr(gen);
+	}
 
+	upWallXDec = 0;
+	stepCounter = mapLenght;
+
+	
+	int offset = 0;
 	for (int f = 2; f < numOfPoints; f++) {
 
-		upWall.setPoint(f, Vector2f(scrW - upWallXDec, AMP*sin(angle)+OFFSET));
+		upWall.setPoint(f, Vector2f(scrW - upWallXDec, upMap[stepCounter-offset]));
 	    upWallXDec += 10;
-		angle += (2 * 3.14 * upWallXDec*0.001) / numOfPoints;
+		offset--;
 	}
+
 	upWall.setPoint(numOfPoints, Vector2f(0.f, 0.2 * scrH));
+
+	upWallXDec = 0;
+
+	offset = 0;
+	for (int f = numOfPoints - 3; f > 0 ; f--) {
+
+		downWall.setPoint(f, Vector2f(scrW - upWallXDec, downMap[stepCounter - offset]));
+		upWallXDec += 10;
+		offset--;
+	}
+	stepCounter -= offset;
+
 }
 
 void Walls::resolveCollisions(Vector2f botPos)
 {
 }
 
-void Walls::update(Vector2f botPos, int32_t ms)
+void Walls::update(Vector2f magnitPos, int32_t ms)
 {
-	std::random_device rd{};
-	std::mt19937 gen{ rd() };
-	std::uniform_real_distribution<> distr{ 0.f, 6.28 };
-	//static float angle = 0;
+	if (magnitPos.x - prevMagnitPos.x > 10) {
+		
 
-	//static int upWallXDec = 0;
+		
+		float upWallXDec = 0;
+		int offset = 0;
+		for (int f = 2; f < numOfPoints; f++) {
 
-	//float OFFSET = 0.2 * scrH;
+			upWall.setPoint(f, Vector2f(scrW - upWallXDec, upMap[stepCounter - offset]));
+			upWallXDec += 10;
+			offset--;
+		}
+		upWallXDec = 0;
+		stepCounter -= 1;
 
-	//float AMP = 100.f; //32767;
-	//
-	//float tmp = constrain(botPos.x, (float)scrW, 0.f);
-	//int index = mapFloatToInt(tmp, 0.f, (float)scrW, 2, numOfPoints - 1);
-
-	//upWall.setPoint(index, Vector2f(scrW - upWallXDec, AMP * sin(angle) + OFFSET));
-	//if (upWallXDec < scrW) {
-	//	upWallXDec += 10;
-	//}
-	//else {
-	//	upWallXDec = 0;
-	//	angle = distr(gen);
-	//}
-	//angle += (2 * 3.14 * upWallXDec * 0.001) / numOfPoints;
-	//upWall.setPoint(numOfPoints, Vector2f(0.f, 0.2 * scrH));
-
-	float upWallXDec = 0;
-
-	float OFFSET = 0.2 * scrH;
-
-	float AMP = 100.f; //32767;
-	float angle = distr(gen);
-
-	for (int f = 2; f < numOfPoints; f++) {
-
-		upWall.setPoint(f, Vector2f(scrW - upWallXDec, AMP * sin(angle) + OFFSET));
-		upWallXDec += 10;
-		angle += (2 * 3.14 * upWallXDec * 0.001) / numOfPoints;
+		
+		prevMagnitPos.x = magnitPos.x;
 	}
-	upWall.setPoint(numOfPoints, Vector2f(0.f, 0.2 * scrH));
+
+	
 }
 
 void Walls::testUpdate(int screenW, int screenH)

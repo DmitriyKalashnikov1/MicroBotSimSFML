@@ -25,7 +25,7 @@ int main()
     newMgnitPose.x = 500.f;
     newMgnitPose.y = 500.f;
 
-    float poseIncDec = 25;
+    float poseIncDec = 4;
 
     MicroBot mBot = MicroBot(PATH_TO_MAGNIT_TEXTURE, PATH_TO_MICROBOT_TEXTURE, newMgnitPose.x, newMgnitPose.y, 100.f, 200.f, 0.1, 2.f, BOT_MASS);
     Walls walls = Walls(PATH_TO_WALLS_TEXTURE, SCREEN_WEIGHT, SCREEN_HEIGHT);
@@ -61,33 +61,21 @@ int main()
             if (newMgnitPose.x > SCREEN_WEIGHT) {
                 newMgnitPose.x = 150.f;
                 mBot.update(newMgnitPose.x, newMgnitPose.y, elapsed.asMilliseconds(), false);
-                walls.update(mBot.botPos, elapsed.asMilliseconds());
+                walls.prevMagnitPos.x = 0;
             }
             else {
                 mBot.update(newMgnitPose.x, newMgnitPose.y, elapsed.asMilliseconds(), true);
             }
 
+            walls.update(mBot.magnitPos, elapsed.asMilliseconds());
            
-            float distToRightSide = SCREEN_WEIGHT - mBot.magnitPos.x;
-            
-            cout << "DistToRightSide: " << distToRightSide << endl;
-
-            //walls.update(mBot.botPos, elapsed.asMilliseconds());
-            // background animation section
-            //background.move(Vector2f(bOffsetIncrement, 0));
-
-            //backgroundOffsetX += bOffsetIncrement;
-
-            //if ((backgroundOffsetX < -10) || (backgroundOffsetX > 0)) {
-            //    bOffsetIncrement *= -1;
-            //}
             timer.restart();
         }
 
         window.clear();
         window.draw(background);
-        window.draw(walls.upWall);
-       // window.draw(walls.downWall);
+   //     window.draw(walls.upWall);
+        window.draw(walls.downWall);
         window.draw(*mBot.magnit);
         window.draw(*mBot.bot);
         window.display();
